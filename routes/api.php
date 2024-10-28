@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CryptoController;
 use App\Http\Controllers\TransactionController;
 Route::get('/create-wallet', [CryptoController::class, 'createWallet']);
+Route::get('/get-balance', [CryptoController::class, 'getBalance']);
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
