@@ -10,7 +10,7 @@ class WalletService
 
     public function __construct()
     {
-        $this->baseUrl = 'http://localhost:3000'; // Your Node.js server URL
+        $this->baseUrl = 'https://cryptoserver-jqh1.onrender.com'; // Your Node.js server URL
     }
 
     public function createWallet()
