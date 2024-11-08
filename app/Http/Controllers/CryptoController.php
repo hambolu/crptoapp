@@ -27,9 +27,9 @@ class CryptoController extends Controller
         }
     }
 
-    public function getBalance(Request $request)
+    public function getBalance($address)
     {
-        $address = $request->input('address');
+        //$address = $request->input('address');
 
         try {
             $balance = $this->walletService->getBalance($address);
