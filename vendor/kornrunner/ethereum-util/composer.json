@@ -1,0 +1,28 @@
+{
+    "name": "kornrunner/ethereum-util",
+    "description": "Pure PHP implementation of Ethereum Utils",
+    "keywords": ["ethereum", "eth"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Boris Momcilovic",
+            "homepage": "https://github.com/kornrunner/php-ethereum-util"
+        }
+    ],
+    "require": {
+        "kornrunner/keccak": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "kornrunner\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "kornrunner\\": "test"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.2"
+    }
+}
