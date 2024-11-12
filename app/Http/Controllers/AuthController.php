@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OtpMail;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Services\WalletService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use App\Mail\OtpMail;
 /**
  * @OA\Info(
  *     title="Chain Finance",
@@ -96,7 +97,7 @@ class AuthController extends Controller
             // }
 
             // Generate OTP and update the user
-            $otp = Str::random(6);
+            $otp = $this->generateUniqueOtp($user->id);
             $user->update(['otp' => $otp]);
 
             // Send OTP email
@@ -123,8 +124,10 @@ class AuthController extends Controller
      *             mediaType="application/json",
      *             @OA\Schema(
      *                 type="object",
-     *                 required={"otp"},
-     *                 @OA\Property(property="otp", type="string", example="123456"),
+     *                 required={"email"},
+     *                  required={"otp"},
+     *                 @OA\Property(property="email", type="string", example="joe@mail.com"),
+     *                  @OA\Property(property="otp", type="string", example="1234"),
      *             )
      *         )
      *     ),
@@ -140,19 +143,24 @@ class AuthController extends Controller
      */
     public function verifyOtp(Request $request)
     {
-        $request->validate([
-            'otp' => 'required|string',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|string|email|max:255',
+                'otp' => 'required|string',
+            ]);
 
-        $user = Auth::user(); // Get the authenticated user
+            $user = User::where('email', $request->email)->first();
 
-        if ($user->otp === $request->otp) {
-            // Verify email upon successful OTP verification
-            $user->update(['email_verified_at' => now()]);
-            return $this->successResponse([], 'OTP verified successfully, email verified.');
+            if ($user && $user->otp === $request->otp) {
+                $user->update(['email_verified_at' => now()]);
+                return $this->successResponse([], 'OTP verified successfully, email verified.');
+            }
+
+            return $this->errorResponse('Invalid OTP', 400);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred during OTP verification: ' . $e->getMessage(), 500);
         }
-
-        return $this->errorResponse('Invalid OTP', 400);
     }
 
     /**
@@ -184,20 +192,26 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        try {
+            $credentials = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('authToken')->plainTextToken;
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                $token = $user->createToken('authToken')->plainTextToken;
 
-            return $this->successResponse(['token' => $token, 'user' => $user->load('wallet')], 'Login successful');
+                return $this->successResponse(['token' => $token, 'user' => $user->load('wallet')], 'Login successful');
+            }
+
+            return $this->errorResponse('Invalid credentials', 401);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred during login: ' . $e->getMessage(), 500);
         }
-
-        return $this->errorResponse('Invalid credentials', 401);
     }
+
 
     /**
      * @OA\Post(
@@ -212,8 +226,22 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return $this->successResponse([], 'Logout successful');
 
-        return $this->successResponse([], 'Logout successful');
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred during logout: ' . $e->getMessage(), 500);
+        }
+    }
+
+    function generateUniqueOtp($userId)
+    {
+        $otp = random_int(1000, 9999);
+        if (DB::table('users')->where('otp', $otp)->exists()) {
+            $otp = substr($otp . $userId, 0, 4);
+        }
+
+        return $otp;
     }
 }

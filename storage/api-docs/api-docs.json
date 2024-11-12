@@ -80,9 +80,13 @@
                                     "otp"
                                 ],
                                 "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "joe@mail.com"
+                                    },
                                     "otp": {
                                         "type": "string",
-                                        "example": "123456"
+                                        "example": "1234"
                                     }
                                 },
                                 "type": "object"
