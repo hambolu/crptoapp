@@ -9,6 +9,7 @@ Route::get('/create-wallet', [CryptoController::class, 'createWallet']);
 Route::get('/get-balance/{balance}', [CryptoController::class, 'getBalance']);
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
