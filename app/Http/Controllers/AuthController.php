@@ -23,7 +23,14 @@ use Illuminate\Support\Str;
  *         email="support@example.com"
  *     )
  * )
+ * @OA\SecurityScheme(
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     securityScheme="bearerAuth"
+ * )
  */
+
 class AuthController extends Controller
 {
     use ApiResponse;
@@ -217,13 +224,15 @@ class AuthController extends Controller
      * @OA\Post(
      *     path="/api/logout",
      *     summary="Logout user",
-     * tags={"Authentication"},
+     *     tags={"Authentication"},
+     *     security={{"bearerAuth": {}}},
      *     @OA\Response(
      *         response=200,
      *         description="Logout successful"
      *     )
      * )
      */
+
     public function logout(Request $request)
     {
         try {
