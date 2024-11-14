@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class WalletService
 {
@@ -13,10 +14,31 @@ class WalletService
         $this->baseUrl = 'https://cryptoserver-jqh1.onrender.com'; // Your Node.js server URL
     }
 
-    public function createWallet()
+    // public function createWallet()
+    // {
+    //     $response = Http::post("{$this->baseUrl}/wallet");
+    //     return $response->json();
+    // }
+
+    public function createWallet($attempts = 3, $delay = 500)
     {
-        $response = Http::post("{$this->baseUrl}/wallet");
-        return $response->json();
+        $attempt = 0;
+
+        while ($attempt < $attempts) {
+            $response = Http::post("{$this->baseUrl}/wallet");
+            $walletData = $response->json();
+
+            if ($response->successful() && isset($walletData['status']) && $walletData['status'] === true) {
+                return $walletData;
+            }
+
+            Log::warning('Wallet creation attempt failed', ['attempt' => $attempt + 1, 'response' => $walletData]);
+            usleep($delay * 1000);
+            $attempt++;
+        }
+
+        Log::error('Wallet creation failed after maximum retries');
+        return ['status' => false, 'message' => 'Wallet creation failed after maximum retries'];
     }
 
     public function getBalance($address)

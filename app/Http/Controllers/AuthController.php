@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 /**
@@ -72,52 +73,50 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function register(Request $request)
-    {
-        try {
-            // Validate the incoming request
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'username' => 'required|string|alpha_dash|max:255|unique:users',
-                'password' => 'required|string|min:8|confirmed',
+
+
+public function register(Request $request)
+{
+    try {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|alpha_dash|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+        $wallet = $this->walletService->createWallet();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+        ]);
+
+
+
+        if ($wallet['status'] === true) {
+            Wallet::create([
+                'user_id' => $user->id,
+                'address' => $wallet['data']['address'],
+                'private_key' => $wallet['data']['privateKey']
             ]);
-
-            // Register the user
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-            ]);
-
-            // Create wallet for the user
-            $wallet = $this->walletService->createWallet();
-            $wallet_service = $this->successResponse($wallet);
-
-            if ($wallet_service['status'] === true) {
-                Wallet::create([
-                    'user_id' => $user->id,
-                    'address' => $wallet_service['data']['address'],
-                    'private_key' => $wallet_service['data']['privateKey']
-                ]);
-            }
-
-            // Generate OTP and update the user
-            $otp = $this->generateUniqueOtp($user->id);
-            $user->update(['otp' => $otp]);
-
-            // Send OTP email
-            Mail::to($user->email)->send(new OtpMail($otp));
-
-            // Return success response
-            return $this->successResponse($user->load('wallet'), 'User registered successfully. Please check your email for OTP verification.');
-
-        } catch (\Exception $e) {
-            // Catch any exception and return an error response
-            return $this->errorResponse('An error occurred during registration: ' . $e->getMessage(), 500);
+        } else {
+            Log::error('Wallet creation failed for user', ['user_id' => $user->id, 'response' => $wallet]);
+            return $this->errorResponse('An error occurred during wallet creation. Please try again.', 500);
         }
+
+        $otp = $this->generateUniqueOtp($user->id);
+        $user->update(['otp' => $otp]);
+
+        Mail::to($user->email)->send(new OtpMail($otp));
+
+        return $this->successResponse($user->load('wallet'), 'User registered successfully. Please check your email for OTP verification.');
+
+    } catch (\Exception $e) {
+        return $this->errorResponse('An error occurred during registration: ' . $e->getMessage(), 500);
     }
+}
+
 
 
     /**
