@@ -92,16 +92,16 @@ class AuthController extends Controller
             ]);
 
             // Create wallet for the user
-            // $wallet = $this->walletService->createWallet();
-            // $wallet_service = $this->successResponse($wallet);
+            $wallet = $this->walletService->createWallet();
+            $wallet_service = $this->successResponse($wallet);
 
-            // if ($wallet_service['status'] === true) {
-            //     Wallet::create([
-            //         'user_id' => $user->id,
-            //         'address' => $wallet_service['data']['address'],
-            //         'private_key' => $wallet_service['data']['privateKey']
-            //     ]);
-            // }
+            if ($wallet_service['status'] === true) {
+                Wallet::create([
+                    'user_id' => $user->id,
+                    'address' => $wallet_service['data']['address'],
+                    'private_key' => $wallet_service['data']['privateKey']
+                ]);
+            }
 
             // Generate OTP and update the user
             $otp = $this->generateUniqueOtp($user->id);
