@@ -13,9 +13,10 @@ Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
-    Route::post('crypto/send', [CryptoController::class, 'sendCrypto']);
-    Route::post('crypto/swap', [CryptoController::class, 'swapCrypto']);
+    Route::post('transaction/send', [CryptoController::class, 'sendCrypto']);
+    Route::post('transaction/swap', [CryptoController::class, 'swapCrypto']);
     Route::get('transactions', [TransactionController::class, 'getTransactionHistory']);
+    Route::get('transaction/internal', [TransactionController::class, 'sendInternalTransaction']);
 });
 
 Route::get('/user', function (Request $request) {

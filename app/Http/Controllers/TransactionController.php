@@ -34,4 +34,6 @@ class TransactionController extends Controller
         $transactions = Transaction::all();
         return $this->successResponse($transactions, 'Transaction history retrieved');
     }
+
+
 }

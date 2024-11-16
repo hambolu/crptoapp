@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\CreateWalletsForUsers' => $baseDir . '/app/Console/Commands/CreateWalletsForUsers.php',
     'App\\Http\\Controllers\\AuthController' => $baseDir . '/app/Http/Controllers/AuthController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\CryptoController' => $baseDir . '/app/Http/Controllers/CryptoController.php',
@@ -18,6 +19,9 @@ return array(
     'App\\Services\\WalletService' => $baseDir . '/app/Services/WalletService.php',
     'App\\Traits\\ApiResponse' => $baseDir . '/app/Traits/ApiResponse.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
+    'Berkayk\\OneSignal\\OneSignalClient' => $vendorDir . '/berkayk/onesignal-laravel/src/OneSignalClient.php',
+    'Berkayk\\OneSignal\\OneSignalFacade' => $vendorDir . '/berkayk/onesignal-laravel/src/OneSignalFacade.php',
+    'Berkayk\\OneSignal\\OneSignalServiceProvider' => $vendorDir . '/berkayk/onesignal-laravel/src/OneSignalServiceProvider.php',
     'Brick\\Math\\BigDecimal' => $vendorDir . '/brick/math/src/BigDecimal.php',
     'Brick\\Math\\BigInteger' => $vendorDir . '/brick/math/src/BigInteger.php',
     'Brick\\Math\\BigNumber' => $vendorDir . '/brick/math/src/BigNumber.php',
@@ -5412,6 +5416,13 @@ return array(
     'SebastianBergmann\\Type\\VoidType' => $vendorDir . '/sebastian/type/src/type/VoidType.php',
     'SebastianBergmann\\Version' => $vendorDir . '/sebastian/version/src/Version.php',
     'Stringable' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
+    'Symfony\\Bridge\\PsrHttpMessage\\ArgumentValueResolver\\PsrServerRequestResolver' => $vendorDir . '/symfony/psr-http-message-bridge/ArgumentValueResolver/PsrServerRequestResolver.php',
+    'Symfony\\Bridge\\PsrHttpMessage\\EventListener\\PsrResponseListener' => $vendorDir . '/symfony/psr-http-message-bridge/EventListener/PsrResponseListener.php',
+    'Symfony\\Bridge\\PsrHttpMessage\\Factory\\HttpFoundationFactory' => $vendorDir . '/symfony/psr-http-message-bridge/Factory/HttpFoundationFactory.php',
+    'Symfony\\Bridge\\PsrHttpMessage\\Factory\\PsrHttpFactory' => $vendorDir . '/symfony/psr-http-message-bridge/Factory/PsrHttpFactory.php',
+    'Symfony\\Bridge\\PsrHttpMessage\\Factory\\UploadedFile' => $vendorDir . '/symfony/psr-http-message-bridge/Factory/UploadedFile.php',
+    'Symfony\\Bridge\\PsrHttpMessage\\HttpFoundationFactoryInterface' => $vendorDir . '/symfony/psr-http-message-bridge/HttpFoundationFactoryInterface.php',
+    'Symfony\\Bridge\\PsrHttpMessage\\HttpMessageFactoryInterface' => $vendorDir . '/symfony/psr-http-message-bridge/HttpMessageFactoryInterface.php',
     'Symfony\\Component\\Clock\\Clock' => $vendorDir . '/symfony/clock/Clock.php',
     'Symfony\\Component\\Clock\\ClockAwareTrait' => $vendorDir . '/symfony/clock/ClockAwareTrait.php',
     'Symfony\\Component\\Clock\\ClockInterface' => $vendorDir . '/symfony/clock/ClockInterface.php',

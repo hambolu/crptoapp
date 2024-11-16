@@ -25,7 +25,8 @@
                                     "name",
                                     "email",
                                     "username",
-                                    "password"
+                                    "password",
+                                    "player_id"
                                 ],
                                 "properties": {
                                     "name": {
@@ -47,6 +48,10 @@
                                     "password_confirmation": {
                                         "type": "string",
                                         "example": "password123"
+                                    },
+                                    "player_id": {
+                                        "type": "string",
+                                        "example": "bhvbbdvsfgyuavbHUFYGAYVAUYDVBVAIDYBVIDAYFDBdvib"
                                     }
                                 },
                                 "type": "object"
@@ -163,6 +168,204 @@
                     }
                 ]
             }
+        },
+        "/api/create-wallet": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Create a new wallet",
+                "operationId": "78c5ad8e4a0692693916c1dd2e6ee000",
+                "responses": {
+                    "200": {
+                        "description": "Wallet created successfully"
+                    },
+                    "500": {
+                        "description": "Failed to create wallet"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/get-balance/{balance}": {
+            "get": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Get wallet balance",
+                "operationId": "8d5744f6a376b678fee43eefe9e1b4e8",
+                "parameters": [
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "description": "Wallet address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Wallet balance retrieved successfully"
+                    },
+                    "500": {
+                        "description": "Failed to retrieve balance"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/transaction/internal": {
+            "post": {
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Send internal transaction",
+                "operationId": "08291c9108b9cb3c7dd21361491fb1ca",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "receiver_uuid": {
+                                        "description": "Receiver's UUID",
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "description": "Amount to send",
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "currency": {
+                                        "description": "Currency (e.g., BTC, ETH)",
+                                        "type": "string"
+                                    },
+                                    "note": {
+                                        "description": "Optional note",
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction completed successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input or insufficient balance"
+                    },
+                    "500": {
+                        "description": "Transaction failed"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/transaction/send": {
+            "post": {
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Send crypto",
+                "operationId": "54ddbf545614fb6f68e94816e08b26c3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "to_address": {
+                                        "description": "Receiver's wallet address",
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "description": "Amount to send",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Crypto sent successfully"
+                    },
+                    "500": {
+                        "description": "Failed to send crypto"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/transaction/swap": {
+            "post": {
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Swap crypto",
+                "operationId": "de31a08f4047ba24b1fba43fbe03351f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "tokenFrom": {
+                                        "description": "Token to swap from",
+                                        "type": "string"
+                                    },
+                                    "tokenTo": {
+                                        "description": "Token to swap to",
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "description": "Amount to swap",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Crypto swapped successfully"
+                    },
+                    "500": {
+                        "description": "Failed to swap crypto"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -178,6 +381,14 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Wallet",
+            "description": "Wallet"
+        },
+        {
+            "name": "Transaction",
+            "description": "Transaction"
         }
     ]
 }

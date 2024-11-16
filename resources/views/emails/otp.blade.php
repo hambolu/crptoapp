@@ -6,7 +6,7 @@
     <title>Email Verification</title>
 </head>
 <body>
-    <h1>Your OTP Code</h1>
+    <h4>OTP Code</h4>
     <p>Your OTP code is: <strong>{{ $otp }}</strong></p>
     <p>Please use this code to verify your email address.</p>
 </body>

@@ -25,7 +25,8 @@ class User extends Authenticatable
         'username',
         'password',
         'otp',
-        'email_verified_at'
+        'email_verified_at',
+        'uuid',
 
     ];
 
@@ -55,5 +56,18 @@ class User extends Authenticatable
     public function wallet()
     {
         return $this->hasOne(Wallet::class);
+    }
+
+    public function sentTransactions()
+    {
+        return $this->hasMany(Transaction::class, 'sender_id');
+    }
+
+    /**
+     * Get all transactions received by the user (for internal transfers).
+     */
+    public function receivedTransactions()
+    {
+        return $this->hasMany(Transaction::class, 'receiver_id');
     }
 }

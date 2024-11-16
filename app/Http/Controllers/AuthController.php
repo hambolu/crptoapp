@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Services\OneSignalService;
 /**
  * @OA\Info(
  *     title="Chain Finance",
@@ -37,10 +38,13 @@ class AuthController extends Controller
     use ApiResponse;
 
     private $walletService;
+    protected $oneSignalService;
 
-    public function __construct(WalletService $walletService)
+
+    public function __construct(WalletService $walletService, OneSignalService $oneSignalService)
     {
         $this->walletService = $walletService;
+        $this->oneSignalService = $oneSignalService;
     }
 
     /**
@@ -54,12 +58,13 @@ class AuthController extends Controller
      *             mediaType="application/json",
      *             @OA\Schema(
      *                 type="object",
-     *                 required={"name", "email", "username", "password"},
+     *                 required={"name", "email", "username", "password","player_id"},
      *                 @OA\Property(property="name", type="string", example="John Doe"),
      *                 @OA\Property(property="email", type="string", example="john@example.com"),
      *                 @OA\Property(property="username", type="string", example="johndoe123"),
      *                 @OA\Property(property="password", type="string", example="password123"),
      *                 @OA\Property(property="password_confirmation", type="string", example="password123"),
+     *                 @OA\Property(property="player_id", type="string", example="bhvbbdvsfgyuavbHUFYGAYVAUYDVBVAIDYBVIDAYFDBdvib"),
      *             )
      *         )
      *     ),
@@ -75,47 +80,41 @@ class AuthController extends Controller
      */
 
 
-public function register(Request $request)
-{
-    try {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'username' => 'required|string|alpha_dash|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-        $wallet = $this->walletService->createWallet();
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-        ]);
-
-
-
-        if ($wallet['status'] === true) {
-            Wallet::create([
-                'user_id' => $user->id,
-                'address' => $wallet['data']['address'],
-                'private_key' => $wallet['data']['privateKey']
+    public function register(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'username' => 'required|string|alpha_dash|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
             ]);
-        } else {
-            Log::error('Wallet creation failed for user', ['user_id' => $user->id, 'response' => $wallet]);
-            return $this->errorResponse('An error occurred during wallet creation. Please try again.', 500);
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'uuid' => $this->generateUniqueUUID(),
+            ]);
+            $otp = $this->generateUniqueOtp($user->id);
+            $title = 'OTP Code';
+            $message = 'Your OTP code is: ' . $otp;
+
+
+            $this->oneSignalService->sendNotificationToUser($request->player_id, $title, $message);
+
+
+            $user->update(['otp' => $otp]);
+
+            Mail::to($user->email)->send(new OtpMail($otp));
+
+            return $this->successResponse($user->load('wallet'), 'User registered successfully. Please check your email for OTP verification.');
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred during registration: ' . $e->getMessage(), 500);
         }
-
-        $otp = $this->generateUniqueOtp($user->id);
-        $user->update(['otp' => $otp]);
-
-        Mail::to($user->email)->send(new OtpMail($otp));
-
-        return $this->successResponse($user->load('wallet'), 'User registered successfully. Please check your email for OTP verification.');
-
-    } catch (\Exception $e) {
-        return $this->errorResponse('An error occurred during registration: ' . $e->getMessage(), 500);
     }
-}
 
 
 
@@ -248,6 +247,16 @@ public function register(Request $request)
         $otp = random_int(1000, 9999);
         if (DB::table('users')->where('otp', $otp)->exists()) {
             $otp = substr($otp . $userId, 0, 4);
+        }
+
+        return $otp;
+    }
+
+    function generateUniqueUUID()
+    {
+        $uuid = random_int(10000000, 99999999);
+        if (DB::table('users')->where('uuid', $uuid)->exists()) {
+            $otp = substr($uuid, 0, 8);
         }
 
         return $otp;
