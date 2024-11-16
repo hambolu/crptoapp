@@ -45,6 +45,7 @@ class ComposerStaticInit589cc0f65c3aaa7d4e9024d545bc1974
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'a1cfe24d14977df6878b9bf804af2d1c' => __DIR__ . '/..' . '/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
+        'ec020eae7f42c24af9776d89f8a687b4' => __DIR__ . '/../..' . '/app/Helpers/settings.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -666,10 +667,12 @@ class ComposerStaticInit589cc0f65c3aaa7d4e9024d545bc1974
         'App\\Http\\Controllers\\CryptoController' => __DIR__ . '/../..' . '/app/Http/Controllers/CryptoController.php',
         'App\\Http\\Controllers\\TransactionController' => __DIR__ . '/../..' . '/app/Http/Controllers/TransactionController.php',
         'App\\Mail\\OtpMail' => __DIR__ . '/../..' . '/app/Mail/OtpMail.php',
+        'App\\Models\\Setting' => __DIR__ . '/../..' . '/app/Models/Setting.php',
         'App\\Models\\Transaction' => __DIR__ . '/../..' . '/app/Models/Transaction.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\Wallet' => __DIR__ . '/../..' . '/app/Models/Wallet.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
+        'App\\Services\\OneSignalService' => __DIR__ . '/../..' . '/app/Services/OneSignalService.php',
         'App\\Services\\WalletService' => __DIR__ . '/../..' . '/app/Services/WalletService.php',
         'App\\Traits\\ApiResponse' => __DIR__ . '/../..' . '/app/Traits/ApiResponse.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
@@ -794,6 +797,7 @@ class ComposerStaticInit589cc0f65c3aaa7d4e9024d545bc1974
         'Cron\\MonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
+        'Database\\Seeders\\SettingsSeeder' => __DIR__ . '/../..' . '/database/seeders/SettingsSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
         'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',

@@ -1,0 +1,36 @@
+application:
+  name: "Chain Finance"
+  repository: "https://github.com/hambolu/crptoapp.git"
+  deploy_key: /path/to/deploy/key # Optional if using SSH keys for private repos
+  branch: "main"  # Specify the branch you want to deploy
+  directory: "/home/chainfinanceco/public_html" # The directory where your Laravel project is hosted
+
+  # These environment variables will be used during deployment.
+  environment:
+    APP_ENV: production
+    APP_KEY: base64:YourAppKeyHere==
+    DB_CONNECTION: mysql
+    DB_HOST: localhost
+    DB_PORT: 3306
+    DB_DATABASE: your_database
+    DB_USERNAME: your_database_username
+    DB_PASSWORD: your_database_password
+    CACHE_DRIVER: file
+    SESSION_DRIVER: file
+    QUEUE_CONNECTION: sync
+    # Add any other environment variables you need for your app
+    
+  post-deploy:
+    # This step will be executed after deployment
+    - cd /home/chainfinanceco/public_html
+    - composer install --no-dev --optimize-autoloader
+    - php artisan key:generate --env=production
+    - php artisan migrate --force
+    - php artisan config:cache
+    - php artisan route:cache
+    - php artisan view:cache
+    - chmod -R 775 storage
+    - chmod -R 775 bootstrap/cache
+
+  # Optional: If you want to specify webroot for your Laravel app.
+  webroot: public

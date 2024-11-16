@@ -11,9 +11,9 @@ class OneSignalService
     public function __construct()
     {
         $this->client = new OneSignalClient(
-            config('onesignal.app_id'),
-            config('onesignal.rest_api_key'),
-            config('onesignal.user_auth_key')
+            getSetting('ONESIGNAL_APP_ID'),
+            getSetting('ONESIGNAL_REST_API_KEY'),
+            getSetting('ONESIGNAL_USER_AUTH_KEY')
         );
     }
 
