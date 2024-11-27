@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
+use Web3\Web3;
 class WalletService
 {
     private $baseUrl;
@@ -20,26 +20,26 @@ class WalletService
     //     return $response->json();
     // }
 
-    public function createWallet($attempts = 3, $delay = 500)
+
+
+    public function createWallet()
     {
-        $attempt = 0;
+        $response = Http::timeout(326) // Set a timeout of 30 seconds
+            ->post("{$this->baseUrl}/wallet");
 
-        while ($attempt < $attempts) {
-            $response = Http::post("{$this->baseUrl}/wallet");
-            $walletData = $response->json();
+        $walletData = $response->json();
 
-            if ($response->successful() && isset($walletData['status']) && $walletData['status'] === true) {
-                return $walletData;
-            }
-
-            Log::warning('Wallet creation attempt failed', ['attempt' => $attempt + 1, 'response' => $walletData]);
-            usleep($delay * 1000);
-            $attempt++;
+        if ($response->successful() && isset($walletData['status']) && $walletData['status'] === true) {
+            return $walletData;
         }
 
-        Log::error('Wallet creation failed after maximum retries');
-        return ['status' => false, 'message' => 'Wallet creation failed after maximum retries'];
+        Log::warning('Wallet creation failed', ['response' => $walletData]);
+
+        Log::error('Wallet creation failed after single attempt');
+        return ['status' => false, 'message' => 'Wallet creation failed'];
     }
+
+
 
     public function getBalance($address)
     {

@@ -25,6 +25,8 @@ class CryptoController extends Controller
         $this->walletService = $walletService;
     }
 
+
+
     /**
      * @OA\Post(
      *     path="/api/create-wallet",

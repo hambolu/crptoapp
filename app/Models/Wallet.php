@@ -9,6 +9,7 @@ class Wallet extends Model
     protected $fillable = [
         'user_id',
         'address',
+        'private_key',
         'bnb_balance',
         'busd_balance',
         'cake_balance',

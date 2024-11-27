@@ -169,6 +169,85 @@
                 ]
             }
         },
+        "/api/resend-otp": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Resend OTP",
+                "description": "Resend OTP to the user",
+                "operationId": "d345e764f1190fc7cfdc54bb87ec0a10",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/set-transaction-pin": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Set Transaction PIN",
+                "description": "Set the transaction PIN for the user",
+                "operationId": "740701ca56d081c048d548a1d5792db8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "transaction_pin"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    },
+                                    "transaction_pin": {
+                                        "type": "string",
+                                        "example": "1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction PIN set successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/api/create-wallet": {
             "post": {
                 "tags": [
@@ -366,6 +445,63 @@
                     }
                 ]
             }
+        },
+        "/api/users/{uuid}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User by UUID",
+                "description": "Fetch the name, username, and an obfuscated email of a user using their UUID.",
+                "operationId": "2cff19c1f72e075f7689416833a9bd2b",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the user to retrieve.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User details retrieved successfully."
+                    },
+                    "400": {
+                        "description": "Bad request."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/wallet": {
+            "get": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Get Authenticated User Wallet",
+                "description": "Fetch the wallet details of the authenticated user.",
+                "operationId": "bf14440a225dbdec150df531fd7f7805",
+                "responses": {
+                    "200": {
+                        "description": "Wallet details retrieved successfully."
+                    },
+                    "400": {
+                        "description": "Bad request."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -381,6 +517,10 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "User",
+            "description": "User"
         },
         {
             "name": "Wallet",

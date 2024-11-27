@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('otp')->nullable();
             $table->string('uuid');
+            $table->string('transaction_pin')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

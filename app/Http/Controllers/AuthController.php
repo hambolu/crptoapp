@@ -6,16 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Mail\OtpMail;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Services\OneSignalService;
 use App\Services\WalletService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use App\Services\OneSignalService;
 /**
  * @OA\Info(
  *     title="Chain Finance",
@@ -101,11 +102,22 @@ class AuthController extends Controller
             $title = 'OTP Code';
             $message = 'Your OTP code is: ' . $otp;
 
-
-            $this->oneSignalService->sendNotificationToUser($request->player_id, $title, $message);
-
-
             $user->update(['otp' => $otp]);
+
+            $wallet = Http::timeout(60) // Set a timeout of 30 seconds
+            ->post("https://cryptoserver-jqh1.onrender.com/wallet");
+
+        $walletData = $wallet->json();
+            if (isset($walletData['address']) && isset($walletData['privateKey'])) {
+                $user->wallet()->create([
+                    'address' => $walletData['address'],
+                    'private_key' => $walletData['privateKey'],
+                ]);
+
+            }
+            //$this->oneSignalService->sendNotificationToUser($request->player_id, $title, $message);
+
+
 
             Mail::to($user->email)->send(new OtpMail($otp));
 
@@ -242,6 +254,113 @@ class AuthController extends Controller
         }
     }
 
+
+
+    /**
+     * Resend OTP to the user
+     *
+     * @OA\Post(
+     *     path="/api/resend-otp",
+     *     summary="Resend OTP",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", example="user@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OTP sent successfully",
+     *
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *
+     *     )
+     * )
+     */
+    public function resendOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email|exists:users,email',
+            ]);
+
+
+
+            $user = User::where('email', $request->email)->first();
+            $otp = $this->generateUniqueOtp($user->id);
+            $title = 'OTP Code';
+            $message = 'Your OTP code is: ' . $otp;
+
+            $user->update(['otp' => $otp]);
+
+            //$this->oneSignalService->sendNotificationToUser($request->player_id, $title, $message);
+
+            Mail::to($user->email)->send(new OtpMail($otp));
+
+            return $this->successResponse([], 'OTP sent successfully');
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred during logout: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Set the transaction PIN for the user
+     *
+     * @OA\Post(
+     *     path="/api/set-transaction-pin",
+     *     summary="Set Transaction PIN",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "transaction_pin"},
+     *             @OA\Property(property="email", type="string", example="user@example.com"),
+     *             @OA\Property(property="transaction_pin", type="string", example="1234")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Transaction PIN set successfully",
+     *
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *
+     *     )
+     * )
+     */
+    public function setTransactionPin(Request $request)
+    {
+        try {
+
+            // Validate the input
+            $request->validate([
+                'email' => 'required|email|exists:users,email',
+                'transaction_pin' => 'required|string|size:4',
+            ]);
+
+            // Find the user
+            $user = User::where('email', $request->email)->first();
+
+            // Hash and set the transaction PIN
+            $user->transaction_pin = Hash::make($request->transaction_pin);
+            $user->save();
+
+
+            return $this->successResponse([], 'Transaction PIN set successfully');
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred during logout: ' . $e->getMessage(), 500);
+        }
+    }
+
     function generateUniqueOtp($userId)
     {
         $otp = random_int(1000, 9999);
@@ -256,9 +375,9 @@ class AuthController extends Controller
     {
         $uuid = random_int(10000000, 99999999);
         if (DB::table('users')->where('uuid', $uuid)->exists()) {
-            $otp = substr($uuid, 0, 8);
+            $uuid = substr($uuid, 0, 8);
         }
 
-        return $otp;
+        return $uuid;
     }
 }

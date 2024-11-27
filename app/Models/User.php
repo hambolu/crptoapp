@@ -27,6 +27,7 @@ class User extends Authenticatable
         'otp',
         'email_verified_at',
         'uuid',
+        'transaction_pin',
 
     ];
 

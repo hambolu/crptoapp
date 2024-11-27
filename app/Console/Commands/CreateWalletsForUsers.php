@@ -1,9 +1,10 @@
 <?php
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\User;
 use App\Services\WalletService;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class CreateWalletsForUsers extends Command
@@ -20,22 +21,35 @@ class CreateWalletsForUsers extends Command
 
     public function handle()
     {
-        // Retrieve users without a wallet
         $usersWithoutWallet = User::doesntHave('wallet')->get();
 
         foreach ($usersWithoutWallet as $user) {
-            $wallet = $this->walletService->createWallet();
+            try {
+                $wallet = Http::timeout(60) // Set a timeout of 30 seconds
+                ->post("https://cryptoserver-jqh1.onrender.com/wallet");
 
-            if ($wallet['status'] === true) {
-                $user->wallet()->create([
-                    'address' => $wallet['data']['address'],
-                    'private_key' => $wallet['data']['privateKey'],
+            $walletData = $wallet->json();
+                if (isset($walletData['address']) && isset($walletData['privateKey'])) {
+                    $user->wallet()->create([
+                        'address' => $walletData['address'],
+                        'private_key' => $walletData['privateKey'],
+                    ]);
+
+                    $this->info("Wallet created for user ID: {$user->id}");
+                } else {
+                    Log::error('Wallet creation failed for user', [
+                        'user_id' => $user->id,
+                        'error_message' => $walletData['error_message'] ?? 'Unknown error'
+                    ]);
+                    $this->warn("Failed to create wallet for user ID: {$user->id}");
+                }
+            } catch (\Exception $e) {
+                Log::error('Exception during wallet creation', [
+                    'user_id' => $user->id,
+                    'exception_message' => $e->getMessage(),
+                    'exception_trace' => $e->getTraceAsString()
                 ]);
-
-                $this->info("Wallet created for user ID: {$user->id}");
-            } else {
-                Log::error('Wallet creation failed for user', ['user_id' => $user->id, 'response' => $wallet]);
-                $this->warn("Failed to create wallet for user ID: {$user->id}");
+                $this->warn("Failed to create wallet for user ID: {$user->id} due to an exception.{$e->getMessage()}");
             }
         }
 
